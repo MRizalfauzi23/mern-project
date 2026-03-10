@@ -99,12 +99,12 @@ describe("Applications endpoints", () => {
     expect(typeof rerunRes.body.data.application.screeningScore).toBe("number");
 
     const exportRes = await request(app)
-      .get("/api/v1/applications/export/csv")
+      .get("/api/v1/applications/export/excel")
       .set("Authorization", `Bearer ${token}`);
     expect(exportRes.status).toBe(200);
-    expect(exportRes.header["content-type"]).toContain("text/csv");
-    expect(exportRes.text).toContain("Candidate Name");
-    expect(exportRes.text).toContain("Budi");
+    expect(exportRes.header["content-type"]).toContain(
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
   });
 
   it("blocks recruiter from accessing other recruiter's applications", async () => {

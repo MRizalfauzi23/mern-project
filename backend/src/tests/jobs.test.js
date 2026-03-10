@@ -48,20 +48,20 @@ describe("Jobs endpoints", () => {
         description: "Build and maintain web applications",
         status: "open",
         screeningConfig: {
-          passThreshold: 75,
-          reviewThreshold: 45,
-          resumeWeight: 20,
-          coverLetterWeight: 25,
-          phoneWeight: 10,
-          emailWeight: 10,
-          keywordWeight: 35,
+          passThreshold: 40,
+          reviewThreshold: 20,
+          resumeWeight: 10,
+          coverLetterWeight: 10,
+          phoneWeight: 5,
+          emailWeight: 5,
+          keywordWeight: 10,
           keywordList: ["react", "frontend", "javascript"]
         }
       });
 
     expect(createRes.status).toBe(201);
     expect(createRes.body.data.job.title).toBe("Frontend Engineer");
-    expect(createRes.body.data.job.screeningConfig.passThreshold).toBe(75);
+    expect(createRes.body.data.job.screeningConfig.passThreshold).toBe(40);
     const createdId = createRes.body.data.job._id;
 
     const listRes = await request(app).get("/api/v1/jobs?page=1&limit=5&search=Frontend&status=open");
