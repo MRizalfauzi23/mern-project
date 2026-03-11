@@ -1,6 +1,6 @@
 "use client";
 
-import { JobsPage } from "../../pages/JobsPage.jsx";
+import { JobsPage } from "../../legacy/pages/JobsPage.jsx";
 
 export default function Page() {
   return <JobsPage />;

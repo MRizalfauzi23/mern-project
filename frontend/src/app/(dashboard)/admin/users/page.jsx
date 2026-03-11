@@ -1,7 +1,7 @@
 "use client";
 
 import { ProtectedRoute } from "../../../../components/ProtectedRoute.jsx";
-import { UsersPage } from "../../../../pages/UsersPage.jsx";
+import { UsersPage } from "../../../../legacy/pages/UsersPage.jsx";
 
 export default function Page() {
   return (

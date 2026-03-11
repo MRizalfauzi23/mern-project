@@ -1,6 +1,6 @@
 "use client";
 
-import { ApplicationsPage } from "../../../pages/ApplicationsPage.jsx";
+import { ApplicationsPage } from "../../../legacy/pages/ApplicationsPage.jsx";
 
 export default function Page() {
   return <ApplicationsPage />;

@@ -1,6 +1,6 @@
 "use client";
 
-import { ApplySuccessPage } from "../../../../pages/ApplySuccessPage.jsx";
+import { ApplySuccessPage } from "../../../../legacy/pages/ApplySuccessPage.jsx";
 
 export default function Page() {
   return <ApplySuccessPage />;
