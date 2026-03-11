@@ -1,10 +1,15 @@
+"use client";
+
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useToast } from "../components/ToastProvider";
 import { fetchJobs } from "../features/jobs/jobsApi";
 import { submitPublicApplication } from "../features/applications/applicationsApi";
 import { Loader } from "../components/Loader";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 
 const INITIAL_FORM = {
   fullName: "",
@@ -15,7 +20,7 @@ const INITIAL_FORM = {
 
 export function ApplicantFormPage() {
   const { showToast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [form, setForm] = useState(INITIAL_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -37,7 +42,7 @@ export function ApplicantFormPage() {
       setSelectedJobId("");
       setPortfolioFile(null);
       showToast("Lamaran berhasil dikirim");
-      navigate("/apply/success");
+      router.push("/apply/success");
     },
     onError: (error) => {
       setIsSubmitting(false);
@@ -117,8 +122,7 @@ export function ApplicantFormPage() {
             </div>
             <label className="field">
               <span>Nama Lengkap</span>
-              <input
-                className="input"
+              <Input
                 placeholder="Contoh: Rizal F."
                 value={form.fullName}
                 onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
@@ -127,8 +131,7 @@ export function ApplicantFormPage() {
             </label>
             <label className="field">
               <span>Email</span>
-              <input
-                className="input"
+              <Input
                 type="email"
                 placeholder="nama@email.com"
                 value={form.email}
@@ -138,8 +141,7 @@ export function ApplicantFormPage() {
             </label>
             <label className="field">
               <span>Nomor Telepon</span>
-              <input
-                className="input"
+              <Input
                 placeholder="08xxxxxx"
                 value={form.phone}
                 onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
@@ -148,8 +150,7 @@ export function ApplicantFormPage() {
             </label>
             <label className="field">
               <span>Upload Portfolio / CV</span>
-              <input
-                className="input"
+              <Input
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(event) => setPortfolioFile(event.target.files?.[0] || null)}
@@ -157,8 +158,7 @@ export function ApplicantFormPage() {
             </label>
             <label className="field">
               <span>Cover Letter</span>
-              <textarea
-                className="input"
+              <Textarea
                 rows={5}
                 placeholder="Tulis ringkasan pengalaman dan motivasi Anda."
                 value={form.coverLetter}
@@ -166,9 +166,9 @@ export function ApplicantFormPage() {
               />
             </label>
 
-            <button type="submit" className="applicant-submit" disabled={isSubmitting}>
+            <Button type="submit" className="applicant-submit" disabled={isSubmitting}>
               {isSubmitting ? "Mengirim..." : "Kirim Lamaran"}
-            </button>
+            </Button>
           </form>
         )}
         </div>

@@ -1,10 +1,36 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+
+import Link from "next/link";
 import { ErrorState } from "../components/ErrorState";
 import { Loader } from "../components/Loader";
 import { fetchApplications, updateApplicationStatus } from "../features/applications/applicationsApi";
 import { useToast } from "../components/ToastProvider";
+import { Button } from "../components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "../components/ui/dropdown-menu";
+import { FiMoreVertical } from "react-icons/fi";
 
 const STATUSES = ["screening", "interview", "offer", "hired", "rejected"];
 const STATUS_LABELS = {
@@ -60,16 +86,17 @@ export function ApplicationPipelinePage() {
 
       <div className="pipeline-tabs" role="tablist" aria-label="Status Pipeline">
         {STATUSES.map((status) => (
-          <button
+          <Button
             key={status}
             type="button"
-            className={`pipeline-tab ${activeStatus === status ? "active" : ""}`}
+            variant="outline"
+            className={`pipeline-tab clean-btn ${activeStatus === status ? "active" : ""}`}
             onClick={() => setActiveStatus(status)}
             role="tab"
             aria-selected={activeStatus === status}
           >
             {STATUS_LABELS[status]} ({statusCount[status] || 0})
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -79,62 +106,73 @@ export function ApplicationPipelinePage() {
           <span className="muted">{filteredItems.length} kandidat</span>
         </div>
         <div className="table-wrap">
-          <table className="saas-table">
-            <thead>
-              <tr>
-                <th>Kandidat</th>
-                <th>Email</th>
-                <th>Lowongan</th>
-                <th>Perusahaan</th>
-                <th>Skor</th>
-                <th>Update Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="saas-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Kandidat</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Lowongan</TableHead>
+                <TableHead>Perusahaan</TableHead>
+                <TableHead>Skor</TableHead>
+                <TableHead>Update Status</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredItems.map((item) => (
-                <tr key={item._id}>
-                  <td>{item.candidateName}</td>
-                  <td>{item.candidateEmail}</td>
-                  <td>{item.job?.title || "-"}</td>
-                  <td>{item.job?.company || "-"}</td>
-                  <td>
+                <TableRow key={item._id}>
+                  <TableCell>{item.candidateName}</TableCell>
+                  <TableCell>{item.candidateEmail}</TableCell>
+                  <TableCell>{item.job?.title || "-"}</TableCell>
+                  <TableCell>{item.job?.company || "-"}</TableCell>
+                  <TableCell>
                     <span className="badge screening">{item.screeningScore ?? 0}</span>
-                  </td>
-                  <td>
-                    <select
-                      className="input"
+                  </TableCell>
+                  <TableCell>
+                    <Select
                       value={item.status}
-                      onChange={(event) =>
+                      onValueChange={(value) =>
                         mutation.mutate({
                           id: item._id,
-                          status: event.target.value
+                          status: value
                         })
                       }
                     >
-                      {STATUSES.map((s) => (
-                        <option value={s} key={s}>
-                          {STATUS_LABELS[s]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <Link to={`/applications/${item._id}`} className="link-btn">
-                      Detail
-                    </Link>
-                  </td>
-                </tr>
+                      <SelectTrigger className="input select-clean">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map((s) => (
+                          <SelectItem value={s} key={s}>
+                            {STATUS_LABELS[s]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="action-ellipsis" type="button">
+                        <FiMoreVertical />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/applications/${item._id}`}>Detail</Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
               ))}
               {filteredItems.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="muted">
+                <TableRow>
+                  <TableCell colSpan={7} className="muted">
                     Belum ada kandidat di tahap {STATUS_LABELS[activeStatus]}.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </article>
     </section>

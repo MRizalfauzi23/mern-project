@@ -1,15 +1,33 @@
+"use client";
+
 import { useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../features/auth/AuthContext";
 import { FiBriefcase, FiFileText, FiTrendingUp, FiBarChart2, FiUsers } from "react-icons/fi";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
-export function AppLayout() {
+export function AppLayout({ children }) {
   const { user, logout } = useAuth();
-  const location = useLocation();
-  const isAdminPage = location.pathname.startsWith("/admin");
-  const isRootPage = location.pathname === "/";
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith("/admin");
+  const isRootPage = pathname === "/";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const linkClass = (active) => (active ? "side-link active" : "side-link");
+  const isActivePath = (target) => pathname === target;
+  const isActivePrefix = (target) => pathname.startsWith(target);
+  const isApplicationsActive =
+    pathname === "/applications" ||
+    (pathname.startsWith("/applications/") && !pathname.startsWith("/applications/pipeline"));
+  const isJobsActive = isRootPage || pathname.startsWith("/jobs/");
   return (
     <div
       className={`app-shell ${isAdminPage ? "admin-shell" : ""} ${
@@ -31,51 +49,41 @@ export function AppLayout() {
         </div>
         <nav className="side-nav">
           {user?.role === "admin" && (
-            <NavLink
-              to="/admin"
-              className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
-            >
+            <Link href="/admin" className={linkClass(isActivePath("/admin"))}>
               <span className="side-icon" aria-hidden="true">
                 <FiBarChart2 />
               </span>
               Analitik Admin
-            </NavLink>
+            </Link>
           )}
-          <NavLink
-            to="/applications"
-            end
-            className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
-          >
+          <Link href="/applications" className={linkClass(isApplicationsActive)}>
             <span className="side-icon" aria-hidden="true">
               <FiFileText />
             </span>
             <span className="side-label">Manajemen Lamaran</span>
-          </NavLink>
-          <NavLink to="/" end className={() => (isRootPage ? "side-link active" : "side-link")}>
+          </Link>
+          <Link href="/" className={linkClass(isJobsActive)}>
             <span className="side-icon" aria-hidden="true">
               <FiBriefcase />
             </span>
             <span className="side-label">Manajemen Lowongan</span>
-          </NavLink>
-          <NavLink
-            to="/applications/pipeline"
-            className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
+          </Link>
+          <Link
+            href="/applications/pipeline"
+            className={linkClass(isActivePrefix("/applications/pipeline"))}
           >
             <span className="side-icon" aria-hidden="true">
               <FiTrendingUp />
             </span>
             <span className="side-label">Pipeline Lamaran</span>
-          </NavLink>
+          </Link>
           {user?.role === "admin" && (
-            <NavLink
-              to="/admin/users"
-              className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
-            >
+            <Link href="/admin/users" className={linkClass(isActivePrefix("/admin/users"))}>
               <span className="side-icon" aria-hidden="true">
                 <FiUsers />
               </span>
               Manajemen Users
-            </NavLink>
+            </Link>
           )}
         </nav>
       </aside>
@@ -91,8 +99,10 @@ export function AppLayout() {
             </p> */}
           </div>
           <div className="topbar-actions">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="icon"
               className="sidebar-toggle"
               aria-label="Toggle menu"
               onClick={() => setIsSidebarOpen((prev) => !prev)}
@@ -100,24 +110,16 @@ export function AppLayout() {
               <span />
               <span />
               <span />
-            </button>
-            <div
-              className={`user-menu ${isUserMenuOpen ? "open" : ""}`}
-              tabIndex={0}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                  setIsUserMenuOpen(false);
-                }
-              }}
-            >
-              <button
-                type="button"
-                className="user-trigger"
-                onClick={() => setIsUserMenuOpen((prev) => !prev)}
-              >
-                <span className="user-avatar" aria-hidden="true">
-                  {user?.name?.trim()?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
-                </span>
+            </Button>
+            <DropdownMenu>
+            <DropdownMenuTrigger className="user-trigger clean-btn" type="button">
+                <Avatar className="user-avatar">
+                  <AvatarFallback>
+                    {user?.name?.trim()?.[0]?.toUpperCase() ||
+                      user?.email?.[0]?.toUpperCase() ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
                 <span className="user-meta">
                   <span className="user-name">{user?.name || "User"}</span>
                   <span className="user-email">{user?.email}</span>
@@ -125,22 +127,16 @@ export function AppLayout() {
                 <span className="user-caret" aria-hidden="true">
                   v
                 </span>
-              </button>
-              <div className="user-dropdown" role="menu">
-                <button
-                  type="button"
-                  className="user-dropdown-item"
-                  onClick={() => void logout()}
-                >
-                  Keluar
-                </button>
-              </div>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => void logout()}>Keluar</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
         <main className="content-wrap">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

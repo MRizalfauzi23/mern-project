@@ -1,6 +1,9 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+
+import Link from "next/link";
 import { ErrorState } from "../components/ErrorState";
 import { Loader } from "../components/Loader";
 import { Pagination } from "../components/Pagination";
@@ -13,6 +16,33 @@ import {
 import { fetchJobs } from "../features/jobs/jobsApi";
 import { useDebounce } from "../lib/useDebounce";
 import { useToast } from "../components/ToastProvider";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "../components/ui/dropdown-menu";
+import { FiMoreVertical } from "react-icons/fi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../components/ui/table";
 
 const LIMIT = 8;
 const INITIAL_FORM = {
@@ -86,64 +116,76 @@ export function ApplicationsPage() {
           <p className="section-kicker">Applicant Tracking</p>
           <h2>Lamaran</h2>
         </div>
-        <button type="button" onClick={() => setIsModalOpen(true)}>
+        <Button
+          type="button"
+          variant="outline"
+          className="clean-btn"
+          onClick={() => setIsModalOpen(true)}
+          disabled={createMutation.isPending}
+        >
           + Tambah Lamaran
-        </button>
+        </Button>
       </div>
 
-      <div className="jobs-filters card">
-        <SearchBar
-          value={search}
-          onChange={(value) => {
-            setPage(1);
-            setSearch(value);
-          }}
-        />
-        <div className="filter-row">
-          <select
-            className="input"
-            value={status}
-            onChange={(event) => {
+      <Card className="jobs-filters">
+        <CardContent>
+          <SearchBar
+            value={search}
+            onChange={(value) => {
               setPage(1);
-              setStatus(event.target.value);
+              setSearch(value);
             }}
-          >
-            <option value="">Semua status</option>
-            <option value="screening">screening</option>
-            <option value="interview">interview</option>
-            <option value="offer">offer</option>
-            <option value="hired">hired</option>
-            <option value="rejected">rejected</option>
-          </select>
-        </div>
-      </div>
+          />
+          <div className="filter-row">
+            <Select
+              value={status || "all"}
+              onValueChange={(value) => {
+                setPage(1);
+                setStatus(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger className="input select-clean">
+                <SelectValue placeholder="Semua status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua status</SelectItem>
+                <SelectItem value="screening">screening</SelectItem>
+                <SelectItem value="interview">interview</SelectItem>
+                <SelectItem value="offer">offer</SelectItem>
+                <SelectItem value="hired">hired</SelectItem>
+                <SelectItem value="rejected">rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {appsQuery.isLoading && <Loader label="Memuat data lamaran..." />}
       {appsQuery.isError && <ErrorState message={appsQuery.error?.response?.data?.message} />}
 
       {!appsQuery.isLoading && !appsQuery.isError && applications.length > 0 && (
-        <div className="card table-wrap">
-          <table className="saas-table jobs-table applications-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Kandidat</th>
-                <th>Email</th>
-                <th>Lowongan</th>
-                <th>CV</th>
-                <th>Screening</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card className="table-wrap">
+          <Table className="jobs-table applications-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>No</TableHead>
+                <TableHead>Kandidat</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Lowongan</TableHead>
+                <TableHead>CV</TableHead>
+                <TableHead>Screening</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {applications.map((application, index) => (
-                <tr key={application._id}>
-                  <td>{(currentPage - 1) * LIMIT + index + 1}</td>
-                  <td>{application.candidateName}</td>
-                  <td>{application.candidateEmail}</td>
-                  <td>{application.job?.title || "-"}</td>
-                  <td>
+                <TableRow key={application._id}>
+                  <TableCell>{(currentPage - 1) * LIMIT + index + 1}</TableCell>
+                  <TableCell>{application.candidateName}</TableCell>
+                  <TableCell>{application.candidateEmail}</TableCell>
+                  <TableCell>{application.job?.title || "-"}</TableCell>
+                  <TableCell>
                     {application.resumeUrl ? (
                       <a
                         href={
@@ -160,44 +202,88 @@ export function ApplicationsPage() {
                     ) : (
                       <span className="muted">-</span>
                     )}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <span className="badge screening">{application.screeningScore || 0}</span>
                     <div>
                       <small className="muted">{application.screeningResult || "review"}</small>
                     </div>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <span className={`badge ${application.status}`}>{application.status}</span>
-                  </td>
-                  <td>
-                    <div className="actions">
-                      <Link to={`/applications/${application._id}`} className="link-btn">
-                        Detail
-                      </Link>
-                      <select
-                        className="input"
-                        value={application.status}
-                        onChange={(event) =>
-                          updateStatusMutation.mutate({
-                            id: application._id,
-                            status: event.target.value
-                          })
-                        }
-                      >
-                        <option value="screening">screening</option>
-                        <option value="interview">interview</option>
-                        <option value="offer">offer</option>
-                        <option value="hired">hired</option>
-                        <option value="rejected">rejected</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="action-ellipsis" type="button">
+                        <FiMoreVertical />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/applications/${application._id}`}>Detail</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={updateStatusMutation.isPending}
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: application._id,
+                              status: "screening"
+                            })
+                          }
+                        >
+                          Set Screening
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={updateStatusMutation.isPending}
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: application._id,
+                              status: "interview"
+                            })
+                          }
+                        >
+                          Set Interview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={updateStatusMutation.isPending}
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: application._id,
+                              status: "offer"
+                            })
+                          }
+                        >
+                          Set Offer
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={updateStatusMutation.isPending}
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: application._id,
+                              status: "hired"
+                            })
+                          }
+                        >
+                          Set Hired
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={updateStatusMutation.isPending}
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: application._id,
+                              status: "rejected"
+                            })
+                          }
+                        >
+                          Set Rejected
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       {!appsQuery.isLoading && !appsQuery.isError && applications.length === 0 && (
@@ -206,116 +292,123 @@ export function ApplicationsPage() {
 
       <Pagination page={meta.page || 1} totalPages={meta.totalPages || 1} onPageChange={setPage} />
 
-      {isModalOpen && (
-        <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
-            <form
-              className="form-grid modal-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setActionError("");
-                if (!form.jobId) {
-                  setActionError("Pilih lowongan terlebih dahulu");
-                  return;
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsModalOpen(false);
+            return;
+          }
+          setIsModalOpen(true);
+        }}
+      >
+        <DialogContent className="modal-card">
+          <DialogHeader>
+            <DialogTitle>Tambah Lamaran</DialogTitle>
+          </DialogHeader>
+          <form
+            className="form-grid modal-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setActionError("");
+              if (!form.jobId) {
+                setActionError("Pilih lowongan terlebih dahulu");
+                return;
+              }
+              createMutation.mutate(form);
+            }}
+          >
+            <label className="field">
+              <span>Lowongan</span>
+              <Select
+                value={form.jobId || "none"}
+                onValueChange={(value) =>
+                  setForm((prev) => ({ ...prev, jobId: value === "none" ? "" : value }))
                 }
-                createMutation.mutate(form);
-              }}
-            >
-              <div className="jobs-toolbar">
-                <h3>Tambah Lamaran</h3>
-                <button type="button" className="secondary-btn" onClick={() => setIsModalOpen(false)}>
-                  Tutup
-                </button>
-              </div>
-              <label className="field">
-                <span>Lowongan</span>
-                <select
-                  className="input"
-                  value={form.jobId}
-                  onChange={(event) => setForm((prev) => ({ ...prev, jobId: event.target.value }))}
-                >
-                  <option value="">
-                    {jobsQuery.isLoading
-                      ? "Memuat lowongan..."
-                      : jobsQuery.isError
-                        ? "Gagal memuat lowongan"
-                        : "Pilih lowongan"}
-                  </option>
+              >
+                <SelectTrigger className="input">
+                  <SelectValue
+                    placeholder={
+                      jobsQuery.isLoading
+                        ? "Memuat lowongan..."
+                        : jobsQuery.isError
+                          ? "Gagal memuat lowongan"
+                          : "Pilih lowongan"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Pilih lowongan</SelectItem>
                   {!jobsQuery.isLoading &&
                     !jobsQuery.isError &&
                     jobs.map((job) => (
-                      <option key={job._id} value={job._id}>
+                      <SelectItem key={job._id} value={job._id}>
                         {job.title} - {job.company}
-                      </option>
+                      </SelectItem>
                     ))}
-                </select>
-              </label>
-              <div className="field-grid-two">
-                <label className="field">
-                  <span>Nama kandidat</span>
-                  <input
-                    className="input"
-                    placeholder="Masukkan nama kandidat"
-                    value={form.candidateName}
-                    onChange={(event) =>
-                      setForm((prev) => ({ ...prev, candidateName: event.target.value }))
-                    }
-                  />
-                </label>
-                <label className="field">
-                  <span>Email kandidat</span>
-                  <input
-                    className="input"
-                    placeholder="nama@email.com"
-                    type="email"
-                    value={form.candidateEmail}
-                    onChange={(event) =>
-                      setForm((prev) => ({ ...prev, candidateEmail: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
+                </SelectContent>
+              </Select>
+            </label>
+            <div className="field-grid-two">
               <label className="field">
-                <span>Nomor telepon</span>
-                <input
-                  className="input"
-                  placeholder="08xxxxxxxxxx"
-                  value={form.phone}
-                  onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>Upload CV (PDF/DOC/DOCX, max 5MB)</span>
-                <input
-                  className="input"
-                  type="file"
-                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                <span>Nama kandidat</span>
+                <Input
+                  placeholder="Masukkan nama kandidat"
+                  value={form.candidateName}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, resumeFile: event.target.files?.[0] || null }))
+                    setForm((prev) => ({ ...prev, candidateName: event.target.value }))
                   }
                 />
               </label>
-              {form.resumeFile && <p className="muted">File dipilih: {form.resumeFile.name}</p>}
               <label className="field">
-                <span>Cover letter (opsional)</span>
-                <textarea
-                  className="input"
-                  rows={4}
-                  placeholder="Tulis ringkasan singkat kandidat"
-                  value={form.coverLetter}
-                  onChange={(event) => setForm((prev) => ({ ...prev, coverLetter: event.target.value }))}
+                <span>Email kandidat</span>
+                <Input
+                  placeholder="nama@email.com"
+                  type="email"
+                  value={form.candidateEmail}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, candidateEmail: event.target.value }))
+                  }
                 />
               </label>
-              <div className="actions">
-                <button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Menyimpan..." : "Simpan Lamaran"}
-                </button>
-              </div>
-              {actionError && <ErrorState message={actionError} />}
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+            <label className="field">
+              <span>Nomor telepon</span>
+              <Input
+                placeholder="08xxxxxxxxxx"
+                value={form.phone}
+                onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+              />
+            </label>
+            <label className="field">
+              <span>Upload CV (PDF/DOC/DOCX, max 5MB)</span>
+              <Input
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, resumeFile: event.target.files?.[0] || null }))
+                }
+              />
+            </label>
+            {form.resumeFile && <p className="muted">File dipilih: {form.resumeFile.name}</p>}
+            <label className="field">
+              <span>Cover letter (opsional)</span>
+              <Textarea
+                rows={4}
+                placeholder="Tulis ringkasan singkat kandidat"
+                value={form.coverLetter}
+                onChange={(event) => setForm((prev) => ({ ...prev, coverLetter: event.target.value }))}
+              />
+            </label>
+            <div className="actions">
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Menyimpan..." : "Simpan Lamaran"}
+              </Button>
+            </div>
+            {actionError && <ErrorState message={actionError} />}
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

@@ -1,6 +1,8 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ErrorState } from "../components/ErrorState";
 import { Loader } from "../components/Loader";
 import { Pagination } from "../components/Pagination";
@@ -9,6 +11,33 @@ import { useToast } from "../components/ToastProvider";
 import { useAuth } from "../features/auth/AuthContext";
 import { createJob, deleteJob, fetchJobs, updateJob } from "../features/jobs/jobsApi";
 import { useDebounce } from "../lib/useDebounce";
+import { Button } from "../components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "../components/ui/dropdown-menu";
+import { FiMoreVertical } from "react-icons/fi";
+import { Card, CardContent } from "../components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../components/ui/table";
 
 const LIMIT = 8;
 const DEFAULT_SCREENING_CONFIG = {
@@ -221,9 +250,15 @@ export function JobsPage() {
           <h2>Jobs</h2>
         </div>
         {canManageJobs && (
-          <button type="button" onClick={openCreateModal}>
+          <Button
+            type="button"
+            variant="outline"
+            className="clean-btn"
+            onClick={openCreateModal}
+            disabled={formBusy}
+          >
             + New Job
-          </button>
+          </Button>
         )}
       </div>
 
@@ -246,29 +281,35 @@ export function JobsPage() {
         </article>
       </div>
 
-      <div className="jobs-filters card">
-        <SearchBar
-          value={search}
-          onChange={(value) => {
-            setPage(1);
-            setSearch(value);
-          }}
-        />
-        <div className="filter-row">
-          <select
-            className="input"
-            value={status}
-            onChange={(event) => {
+      <Card className="jobs-filters">
+        <CardContent>
+          <SearchBar
+            value={search}
+            onChange={(value) => {
               setPage(1);
-              setStatus(event.target.value);
+              setSearch(value);
             }}
-          >
-            <option value="">All status</option>
-            <option value="open">open</option>
-            <option value="closed">closed</option>
-          </select>
-        </div>
-      </div>
+          />
+          <div className="filter-row">
+            <Select
+              value={status || "all"}
+              onValueChange={(value) => {
+                setPage(1);
+                setStatus(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger className="input select-clean">
+                <SelectValue placeholder="All status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All status</SelectItem>
+                <SelectItem value="open">open</SelectItem>
+                <SelectItem value="closed">closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {query.isLoading && <Loader />}
       {query.isError && <ErrorState message={query.error?.response?.data?.message} />}
@@ -276,216 +317,218 @@ export function JobsPage() {
       {!query.isLoading && !query.isError && jobs.length === 0 && <p className="muted">No jobs found.</p>}
 
       {!query.isLoading && !query.isError && jobs.length > 0 && (
-        <div className="card table-wrap">
-          <table className="saas-table jobs-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Role</th>
-                <th>Company</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card className="table-wrap">
+          <Table className="jobs-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>No</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {jobs.map((job, index) => (
-                <tr key={job._id}>
-                  <td>{(currentPage - 1) * LIMIT + index + 1}</td>
-                  <td>{job.title}</td>
-                  <td>{job.company}</td>
-                  <td>{job.location}</td>
-                  <td>
+                <TableRow key={job._id}>
+                  <TableCell>{(currentPage - 1) * LIMIT + index + 1}</TableCell>
+                  <TableCell>{job.title}</TableCell>
+                  <TableCell>{job.company}</TableCell>
+                  <TableCell>{job.location}</TableCell>
+                  <TableCell>
                     <span className={`badge ${job.status}`}>{job.status}</span>
-                  </td>
-                  <td>
-                    <div className="actions">
-                      <Link to={`/jobs/${job._id}`} className="link-btn">
-                        Detail
-                      </Link>
-                      {canManageJobs && (
-                        <>
-                          <button type="button" onClick={() => startEdit(job)}>
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            className="danger-btn"
-                            disabled={deleteMutation.isPending}
-                            onClick={() => deleteMutation.mutate(job._id)}
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="action-ellipsis" type="button">
+                        <FiMoreVertical />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/jobs/${job._id}`}>Detail</Link>
+                        </DropdownMenuItem>
+                        {canManageJobs && (
+                          <>
+                        <DropdownMenuItem onClick={() => startEdit(job)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => deleteMutation.mutate(job._id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                        </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       <Pagination page={meta.page || 1} totalPages={meta.totalPages || 1} onPageChange={setPage} />
 
-      {isModalOpen && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
-            <form
-              className="form-grid job-form-grid"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setActionError("");
-                const validationMessage = validateForm(form);
-                if (validationMessage) {
-                  setActionError(validationMessage);
-                  showToast(validationMessage, "error");
-                  return;
-                }
-                const payload = getFormPayload(form);
-                if (editingId) {
-                  updateMutation.mutate({ id: editingId, payload });
-                  return;
-                }
-                createMutation.mutate(payload);
-              }}
-            >
-              <div className="jobs-toolbar">
-                <h3>{editingId ? "Edit Job" : "Create New Job"}</h3>
-                <button type="button" className="secondary-btn" onClick={closeModal}>
-                  Close
-                </button>
-              </div>
-              <article className="job-form-section">
-                <h4>Informasi Job</h4>
-                <div className="field-grid-two">
-                  <label className="field">
-                    <span>Job Title</span>
-                    <input
-                      className="input"
-                      placeholder="Contoh: Senior Backend Engineer"
-                      value={form.title}
-                      onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Company</span>
-                    <input
-                      className="input"
-                      placeholder="Nama perusahaan"
-                      value={form.company}
-                      onChange={(event) => setForm((prev) => ({ ...prev, company: event.target.value }))}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Location</span>
-                    <input
-                      className="input"
-                      placeholder="Kota / Remote / Hybrid"
-                      value={form.location}
-                      onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Status</span>
-                    <select
-                      className="input"
-                      value={form.status}
-                      onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
-                    >
-                      <option value="open">open</option>
-                      <option value="closed">closed</option>
-                    </select>
-                  </label>
-                </div>
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeModal();
+            return;
+          }
+          setIsModalOpen(true);
+        }}
+      >
+        <DialogContent className="modal-card">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit Job" : "Create New Job"}</DialogTitle>
+          </DialogHeader>
+          <form
+            className="form-grid job-form-grid"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setActionError("");
+              const validationMessage = validateForm(form);
+              if (validationMessage) {
+                setActionError(validationMessage);
+                showToast(validationMessage, "error");
+                return;
+              }
+              const payload = getFormPayload(form);
+              if (editingId) {
+                updateMutation.mutate({ id: editingId, payload });
+                return;
+              }
+              createMutation.mutate(payload);
+            }}
+          >
+            <article className="job-form-section">
+              <h4>Informasi Job</h4>
+              <div className="field-grid-two">
                 <label className="field">
-                  <span>Description</span>
-                  <textarea
-                    className="input"
-                    rows={5}
-                    placeholder="Deskripsikan role, tanggung jawab, dan kualifikasi utama"
-                    value={form.description}
-                    onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                  <span>Job Title</span>
+                  <Input
+                    placeholder="Contoh: Senior Backend Engineer"
+                    value={form.title}
+                    onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
                   />
                 </label>
-              </article>
-
-              <article className="job-form-section">
-                <h4>Aturan Screening</h4>
                 <label className="field">
-                  <span>Keyword Prioritas</span>
-                  <input
-                    className="input"
-                    placeholder="Pisahkan dengan koma, contoh: nodejs, react, mongodb"
-                    value={form.screeningKeywords}
+                  <span>Company</span>
+                  <Input
+                    placeholder="Nama perusahaan"
+                    value={form.company}
+                    onChange={(event) => setForm((prev) => ({ ...prev, company: event.target.value }))}
+                  />
+                </label>
+                <label className="field">
+                  <span>Location</span>
+                  <Input
+                    placeholder="Kota / Remote / Hybrid"
+                    value={form.location}
+                    onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
+                  />
+                </label>
+                <label className="field">
+                  <span>Status</span>
+                  <Select
+                    value={form.status}
+                    onValueChange={(value) => setForm((prev) => ({ ...prev, status: value }))}
+                  >
+                  <SelectTrigger className="input select-clean">
+                    <SelectValue placeholder="Pilih status" />
+                  </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">open</SelectItem>
+                      <SelectItem value="closed">closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+              </div>
+                <label className="field">
+                <span>Description</span>
+                <Textarea
+                  rows={5}
+                  placeholder="Deskripsikan role, tanggung jawab, dan kualifikasi utama"
+                  value={form.description}
+                  onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                />
+              </label>
+            </article>
+
+            <article className="job-form-section">
+              <h4>Aturan Screening</h4>
+              <label className="field">
+                <span>Keyword Prioritas</span>
+                <Input
+                  placeholder="Pisahkan dengan koma, contoh: nodejs, react, mongodb"
+                  value={form.screeningKeywords}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, screeningKeywords: event.target.value }))
+                  }
+                />
+              </label>
+              <div className="field-grid-two">
+                <label className="field">
+                  <span>Pass Threshold</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.passThreshold}
                     onChange={(event) =>
-                      setForm((prev) => ({ ...prev, screeningKeywords: event.target.value }))
+                      setForm((prev) => ({ ...prev, passThreshold: event.target.value }))
                     }
                   />
                 </label>
-                <div className="field-grid-two">
-                  <label className="field">
-                    <span>Pass Threshold</span>
-                    <input
-                      className="input"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={form.passThreshold}
-                      onChange={(event) =>
-                        setForm((prev) => ({ ...prev, passThreshold: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Review Threshold</span>
-                    <input
-                      className="input"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={form.reviewThreshold}
-                      onChange={(event) =>
-                        setForm((prev) => ({ ...prev, reviewThreshold: event.target.value }))
-                      }
-                    />
-                  </label>
-                </div>
-                <div className="field-grid-two">
-                  {SCREENING_WEIGHT_FIELDS.map((entry) => (
-                    <label className="field" key={entry.key}>
-                      <span>{entry.label}</span>
-                      <input
-                        className="input"
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={form[entry.key]}
-                        onChange={(event) =>
-                          setForm((prev) => ({ ...prev, [entry.key]: event.target.value }))
-                        }
-                      />
-                    </label>
-                  ))}
-                </div>
-                <p className={screeningTotal <= 100 ? "muted" : "error"}>
-                  Total nilai: {screeningTotal}/100
-                </p>
-              </article>
-              <div className="actions">
-                <button disabled={formBusy} type="submit">
-                  {formBusy ? "Saving..." : editingId ? "Update Job" : "Create Job"}
-                </button>
-                <button type="button" className="secondary-btn" onClick={closeModal}>
-                  Cancel
-                </button>
+                <label className="field">
+                  <span>Review Threshold</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.reviewThreshold}
+                    onChange={(event) =>
+                      setForm((prev) => ({ ...prev, reviewThreshold: event.target.value }))
+                    }
+                  />
+                </label>
               </div>
-              {actionError && <ErrorState message={actionError} />}
-            </form>
-          </div>
-        </div>
-      )}
+              <div className="field-grid-two">
+                {SCREENING_WEIGHT_FIELDS.map((entry) => (
+                  <label className="field" key={entry.key}>
+                    <span>{entry.label}</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={form[entry.key]}
+                      onChange={(event) =>
+                        setForm((prev) => ({ ...prev, [entry.key]: event.target.value }))
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+              <p className={screeningTotal <= 100 ? "muted" : "error"}>
+                Total nilai: {screeningTotal}/100
+              </p>
+            </article>
+            <div className="actions">
+              <Button disabled={formBusy} type="submit">
+                {formBusy ? "Saving..." : editingId ? "Update Job" : "Create Job"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={closeModal}>
+                Cancel
+              </Button>
+            </div>
+            {actionError && <ErrorState message={actionError} />}
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

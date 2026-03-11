@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorState } from "../components/ErrorState";
@@ -5,6 +7,21 @@ import { Loader } from "../components/Loader";
 import { useToast } from "../components/ToastProvider";
 import { exportApplicationsExcel, fetchApplications } from "../features/applications/applicationsApi";
 import { fetchJobs } from "../features/jobs/jobsApi";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "../components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../components/ui/table";
 
 export function AdminDashboardPage() {
   const { showToast } = useToast();
@@ -209,184 +226,182 @@ export function AdminDashboardPage() {
 
       <div className="kpi-grid kpi-grid-4">
         {metrics.slice(0, 4).map((item) => (
-          <article key={item.label} className="kpi-card">
-            <p>{item.label}</p>
-            <h3>{item.value}</h3>
-            <span>{item.trend}</span>
-            <div className="kpi-spark" aria-hidden="true">
-              <svg className="kpi-sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
-                <path
-                  className="spark-area"
-                  d="M2 28 C14 20, 26 18, 38 22 C50 26, 62 26, 74 20 C86 14, 98 14, 118 18 L118 40 L2 40 Z"
-                />
-                <path
-                  className="spark-line"
-                  d="M2 28 C14 20, 26 18, 38 22 C50 26, 62 26, 74 20 C86 14, 98 14, 118 18"
-                />
-              </svg>
-            </div>
-          </article>
+          <Card key={item.label} className="kpi-card">
+            <CardContent>
+              <p>{item.label}</p>
+              <h3>{item.value}</h3>
+              <span>{item.trend}</span>
+              <div className="kpi-spark" aria-hidden="true">
+                <svg className="kpi-sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
+                  <path
+                    className="spark-area"
+                    d="M2 28 C14 20, 26 18, 38 22 C50 26, 62 26, 74 20 C86 14, 98 14, 118 18 L118 40 L2 40 Z"
+                  />
+                  <path
+                    className="spark-line"
+                    d="M2 28 C14 20, 26 18, 38 22 C50 26, 62 26, 74 20 C86 14, 98 14, 118 18"
+                  />
+                </svg>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       <div className="admin-grid">
         <div className="admin-grid-main">
-          <article className="panel-card">
-            <div className="panel-head">
+          <Card className="panel-card">
+            <CardHeader className="panel-head">
               <div>
-                <h3>Distribusi Pipeline Lowongan</h3>
+                <CardTitle>Distribusi Pipeline Lowongan</CardTitle>
                 <p className="panel-subtitle">Per minggu (6 minggu terakhir)</p>
               </div>
-              <button type="button" className="ghost-btn" onClick={() => exportMutation.mutate()}>
+              <Button type="button" variant="outline" size="sm" onClick={() => exportMutation.mutate()}>
                 Export Excel
-              </button>
-            </div>
-            <div className="pipeline-chart" aria-hidden="true">
-              <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="openFill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#6a9cff" stopOpacity="0.35" />
-                    <stop offset="100%" stopColor="#6a9cff" stopOpacity="0" />
-                  </linearGradient>
-                  <linearGradient id="closedFill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#4fd1c5" stopOpacity="0.28" />
-                    <stop offset="100%" stopColor="#4fd1c5" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <g className="chart-grid">
-                  <line x1="40" y1="50" x2="600" y2="50" />
-                  <line x1="40" y1="95" x2="600" y2="95" />
-                  <line x1="40" y1="140" x2="600" y2="140" />
-                  <line x1="40" y1="185" x2="600" y2="185" />
-                </g>
-                <path
-                  className="chart-area open"
-                  fill="url(#openFill)"
-                  d={openAreaPath}
-                />
-                <path
-                  className="chart-area closed"
-                  fill="url(#closedFill)"
-                  d={closedAreaPath}
-                />
-                <path
-                  className="chart-line open"
-                  d={openLinePath}
-                />
-                <path
-                  className="chart-line closed"
-                  d={closedLinePath}
-                />
-                <g className="chart-dots">
-                  {openPoints.slice(-3).map((point) => (
-                    <circle key={`open-${point.x}`} cx={point.x} cy={point.y} r="4" className="open" />
-                  ))}
-                  {closedPoints.slice(-3).map((point) => (
-                    <circle
-                      key={`closed-${point.x}`}
-                      cx={point.x}
-                      cy={point.y}
-                      r="4"
-                      className="closed"
-                    />
-                  ))}
-                </g>
-              </svg>
-            </div>
-            <div className="chart-axis-x">
-              {weekLabels.map((label) => (
-                <span key={label}>{label}</span>
-              ))}
-            </div>
-            <div className="legend-row">
-              <span className="dot-open">Terbuka</span>
-              <span className="dot-closed">Ditutup</span>
-            </div>
-          </article>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="pipeline-chart" aria-hidden="true">
+                <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="openFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#6a9cff" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#6a9cff" stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id="closedFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#4fd1c5" stopOpacity="0.28" />
+                      <stop offset="100%" stopColor="#4fd1c5" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <g className="chart-grid">
+                    <line x1="40" y1="50" x2="600" y2="50" />
+                    <line x1="40" y1="95" x2="600" y2="95" />
+                    <line x1="40" y1="140" x2="600" y2="140" />
+                    <line x1="40" y1="185" x2="600" y2="185" />
+                  </g>
+                  <path className="chart-area open" fill="url(#openFill)" d={openAreaPath} />
+                  <path className="chart-area closed" fill="url(#closedFill)" d={closedAreaPath} />
+                  <path className="chart-line open" d={openLinePath} />
+                  <path className="chart-line closed" d={closedLinePath} />
+                  <g className="chart-dots">
+                    {openPoints.slice(-3).map((point) => (
+                      <circle key={`open-${point.x}`} cx={point.x} cy={point.y} r="4" className="open" />
+                    ))}
+                    {closedPoints.slice(-3).map((point) => (
+                      <circle
+                        key={`closed-${point.x}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r="4"
+                        className="closed"
+                      />
+                    ))}
+                  </g>
+                </svg>
+              </div>
+              <div className="chart-axis-x">
+                {weekLabels.map((label) => (
+                  <span key={label}>{label}</span>
+                ))}
+              </div>
+              <div className="legend-row">
+                <span className="dot-open">Terbuka</span>
+                <span className="dot-closed">Ditutup</span>
+              </div>
+            </CardContent>
+          </Card>
 
-          <article className="panel-card">
-            <h3>Aktivitas Lowongan Terbaru</h3>
-            <div className="table-wrap">
-              <table className="saas-table">
-                <thead>
-                  <tr>
-                    <th>Posisi</th>
-                    <th>Perusahaan</th>
-                    <th>Lokasi</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentJobs.map((job) => (
-                    <tr key={job._id}>
-                      <td>{job.title}</td>
-                      <td>{job.company}</td>
-                      <td>{job.location}</td>
-                      <td>
-                        <span className={`badge ${job.status}`}>{job.status}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </article>
+          <Card className="panel-card">
+            <CardHeader>
+              <CardTitle>Aktivitas Lowongan Terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="table-wrap">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Posisi</TableHead>
+                      <TableHead>Perusahaan</TableHead>
+                      <TableHead>Lokasi</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentJobs.map((job) => (
+                      <TableRow key={job._id}>
+                        <TableCell>{job.title}</TableCell>
+                        <TableCell>{job.company}</TableCell>
+                        <TableCell>{job.location}</TableCell>
+                        <TableCell>
+                          <span className={`badge ${job.status}`}>{job.status}</span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="admin-grid-side">
-          <article className="panel-card">
-            <h3>Distribusi Status Lamaran</h3>
-            <div className="status-chart">
-              <svg viewBox={`0 0 ${donutSize} ${donutSize}`} className="status-donut" aria-hidden="true">
-                <circle
-                  className="donut-track"
-                  cx={donutSize / 2}
-                  cy={donutSize / 2}
-                  r={donutRadius}
-                  strokeWidth={donutStroke}
-                />
-                {applicationStatusDistribution.map((item) => {
-                  const value = item.total;
-                  const ratio = totalStatusCount ? value / totalStatusCount : 0;
-                  const length = donutCirc * ratio;
-                  const dashArray = `${length} ${donutCirc - length}`;
-                  const offset = donutOffset;
-                  donutOffset += length;
-                  return (
-                    <circle
-                      key={item.status}
-                      className="donut-segment"
-                      cx={donutSize / 2}
-                      cy={donutSize / 2}
-                      r={donutRadius}
-                      strokeWidth={donutStroke}
-                      strokeDasharray={dashArray}
-                      strokeDashoffset={-offset}
-                      style={{ stroke: statusPalette[item.status] || "#8aa0b6" }}
-                    />
-                  );
-                })}
-                <text x="50%" y="48%" textAnchor="middle" className="donut-total">
-                  {totalStatusCount}
-                </text>
-                <text x="50%" y="60%" textAnchor="middle" className="donut-label">
-                  Total
-                </text>
-              </svg>
-              <div className="status-legend">
-                {applicationStatusDistribution.map((item) => (
-                  <div className="legend-item" key={item.status}>
-                    <span
-                      className="legend-dot"
-                      style={{ background: statusPalette[item.status] || "#8aa0b6" }}
-                    />
-                    <span className="legend-text">{item.status}</span>
-                    <strong>{item.total}</strong>
-                  </div>
-                ))}
+          <Card className="panel-card">
+            <CardHeader>
+              <CardTitle>Distribusi Status Lamaran</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="status-chart">
+                <svg viewBox={`0 0 ${donutSize} ${donutSize}`} className="status-donut" aria-hidden="true">
+                  <circle
+                    className="donut-track"
+                    cx={donutSize / 2}
+                    cy={donutSize / 2}
+                    r={donutRadius}
+                    strokeWidth={donutStroke}
+                  />
+                  {applicationStatusDistribution.map((item) => {
+                    const value = item.total;
+                    const ratio = totalStatusCount ? value / totalStatusCount : 0;
+                    const length = donutCirc * ratio;
+                    const dashArray = `${length} ${donutCirc - length}`;
+                    const offset = donutOffset;
+                    donutOffset += length;
+                    return (
+                      <circle
+                        key={item.status}
+                        className="donut-segment"
+                        cx={donutSize / 2}
+                        cy={donutSize / 2}
+                        r={donutRadius}
+                        strokeWidth={donutStroke}
+                        strokeDasharray={dashArray}
+                        strokeDashoffset={-offset}
+                        style={{ stroke: statusPalette[item.status] || "#8aa0b6" }}
+                      />
+                    );
+                  })}
+                  <text x="50%" y="48%" textAnchor="middle" className="donut-total">
+                    {totalStatusCount}
+                  </text>
+                  <text x="50%" y="60%" textAnchor="middle" className="donut-label">
+                    Total
+                  </text>
+                </svg>
+                <div className="status-legend">
+                  {applicationStatusDistribution.map((item) => (
+                    <div className="legend-item" key={item.status}>
+                      <span
+                        className="legend-dot"
+                        style={{ background: statusPalette[item.status] || "#8aa0b6" }}
+                      />
+                      <span className="legend-text">{item.status}</span>
+                      <strong>{item.total}</strong>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </article>
+            </CardContent>
+          </Card>
 
           {/* <article className="panel-card">
             <h3>Insight Operasional</h3>

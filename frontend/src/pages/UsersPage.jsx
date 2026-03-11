@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ErrorState } from "../components/ErrorState";
@@ -8,6 +10,37 @@ import { useToast } from "../components/ToastProvider";
 import { useAuth } from "../features/auth/AuthContext";
 import { createUser, deleteUser, fetchUsers, updateUser } from "../features/users/usersApi";
 import { useDebounce } from "../lib/useDebounce";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "../components/ui/dropdown-menu";
+import { FiMoreVertical } from "react-icons/fi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../components/ui/table";
 
 const LIMIT = 8;
 const INITIAL_FORM = {
@@ -145,9 +178,15 @@ export function UsersPage() {
           <p className="section-kicker">User Management</p>
           <h2>Users</h2>
         </div>
-        <button type="button" onClick={openCreateModal}>
+        <Button
+          type="button"
+          variant="outline"
+          className="clean-btn"
+          onClick={openCreateModal}
+          disabled={formBusy}
+        >
           + New User
-        </button>
+        </Button>
       </div>
 
       <div className="jobs-stats">
@@ -169,30 +208,36 @@ export function UsersPage() {
         </article>
       </div>
 
-      <div className="jobs-filters card">
-        <SearchBar
-          value={search}
-          onChange={(value) => {
-            setPage(1);
-            setSearch(value);
-          }}
-        />
-        <div className="filter-row">
-          <select
-            className="input"
-            value={roleFilter}
-            onChange={(event) => {
+      <Card className="jobs-filters">
+        <CardContent>
+          <SearchBar
+            value={search}
+            onChange={(value) => {
               setPage(1);
-              setRoleFilter(event.target.value);
+              setSearch(value);
             }}
-          >
-            <option value="">All role</option>
-            <option value="admin">admin</option>
-            <option value="recruiter">recruiter</option>
-            <option value="candidate">candidate</option>
-          </select>
-        </div>
-      </div>
+          />
+          <div className="filter-row">
+            <Select
+              value={roleFilter || "all"}
+              onValueChange={(value) => {
+                setPage(1);
+                setRoleFilter(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger className="input select-clean">
+                <SelectValue placeholder="All role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All role</SelectItem>
+                <SelectItem value="admin">admin</SelectItem>
+                <SelectItem value="recruiter">recruiter</SelectItem>
+                <SelectItem value="candidate">candidate</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {query.isLoading && <Loader />}
       {query.isError && <ErrorState message={query.error?.response?.data?.message} />}
@@ -202,142 +247,148 @@ export function UsersPage() {
       )}
 
       {!query.isLoading && !query.isError && users.length > 0 && (
-        <div className="card table-wrap">
-          <table className="saas-table jobs-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card className="table-wrap">
+          <Table className="jobs-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>No</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {users.map((item, index) => {
                 const isSelf = currentUser?.id === item._id;
                 return (
-                  <tr key={item._id}>
-                    <td>{(currentPage - 1) * LIMIT + index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.email}</td>
-                    <td>{item.role}</td>
-                    <td>{new Date(item.createdAt).toLocaleDateString("id-ID")}</td>
-                    <td>
-                      <div className="actions">
-                        <button type="button" onClick={() => startEdit(item)}>
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="danger-btn"
-                          disabled={deleteMutation.isPending || isSelf}
-                          title={isSelf ? "Tidak bisa menghapus akun sendiri" : "Hapus user"}
-                          onClick={() => deleteMutation.mutate(item._id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <TableRow key={item._id}>
+                    <TableCell>{(currentPage - 1) * LIMIT + index + 1}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.email}</TableCell>
+                    <TableCell>{item.role}</TableCell>
+                    <TableCell>{new Date(item.createdAt).toLocaleDateString("id-ID")}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="action-ellipsis" type="button">
+                          <FiMoreVertical />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => startEdit(item)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem
+                            variant="destructive"
+                            disabled={deleteMutation.isPending || isSelf}
+                            onClick={() => deleteMutation.mutate(item._id)}
+                          >
+                            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       <Pagination page={meta.page || 1} totalPages={meta.totalPages || 1} onPageChange={setPage} />
 
-      {isModalOpen && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
-            <form
-              className="form-grid job-form-grid"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setActionError("");
-                const validationMessage = validateForm(form);
-                if (validationMessage) {
-                  setActionError(validationMessage);
-                  showToast(validationMessage, "error");
-                  return;
-                }
-                const payload = buildPayload();
-                if (editingId) {
-                  updateMutation.mutate({ id: editingId, payload });
-                  return;
-                }
-                createMutation.mutate(payload);
-              }}
-            >
-              <div className="jobs-toolbar">
-                <h3>{editingId ? "Edit User" : "Create New User"}</h3>
-                <button type="button" className="secondary-btn" onClick={closeModal}>
-                  Close
-                </button>
-              </div>
-              <div className="field-grid-two">
-                <label className="field">
-                  <span>Nama</span>
-                  <input
-                    className="input"
-                    placeholder="Nama lengkap"
-                    value={form.name}
-                    onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  <span>Email</span>
-                  <input
-                    className="input"
-                    type="email"
-                    placeholder="user@email.com"
-                    value={form.email}
-                    onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                  />
-                </label>
-              </div>
-              <div className="field-grid-two">
-                <label className="field">
-                  <span>Role</span>
-                  <select
-                    className="input"
-                    value={form.role}
-                    onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
-                  >
-                    <option value="admin">admin</option>
-                    <option value="recruiter">recruiter</option>
-                    <option value="candidate">candidate</option>
-                  </select>
-                </label>
-                <label className="field">
-                  <span>{editingId ? "Password baru (opsional)" : "Password"}</span>
-                  <input
-                    className="input"
-                    type="password"
-                    placeholder={editingId ? "Biarkan kosong jika tidak diubah" : "Minimal 6 karakter"}
-                    value={form.password}
-                    onChange={(event) =>
-                      setForm((prev) => ({ ...prev, password: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
-              <div className="actions">
-                <button disabled={formBusy} type="submit">
-                  {formBusy ? "Saving..." : editingId ? "Update User" : "Create User"}
-                </button>
-                <button type="button" className="secondary-btn" onClick={closeModal}>
-                  Cancel
-                </button>
-              </div>
-              {actionError && <ErrorState message={actionError} />}
-            </form>
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeModal();
+            return;
+          }
+          setIsModalOpen(true);
+        }}
+      >
+        <DialogContent className="modal-card">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit User" : "Create New User"}</DialogTitle>
+          </DialogHeader>
+          <form
+            className="form-grid job-form-grid"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setActionError("");
+              const validationMessage = validateForm(form);
+              if (validationMessage) {
+                setActionError(validationMessage);
+                showToast(validationMessage, "error");
+                return;
+              }
+              const payload = buildPayload();
+              if (editingId) {
+                updateMutation.mutate({ id: editingId, payload });
+                return;
+              }
+              createMutation.mutate(payload);
+            }}
+          >
+            <div className="field-grid-two">
+              <label className="field">
+                <span>Nama</span>
+                <Input
+                  placeholder="Nama lengkap"
+                  value={form.name}
+                  onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                />
+              </label>
+              <label className="field">
+                <span>Email</span>
+                <Input
+                  type="email"
+                  placeholder="user@email.com"
+                  value={form.email}
+                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                />
+              </label>
+            </div>
+            <div className="field-grid-two">
+              <label className="field">
+                <span>Role</span>
+                <Select
+                  value={form.role}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, role: value }))}
+                >
+                  <SelectTrigger className="input select-clean">
+                    <SelectValue placeholder="Pilih role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">admin</SelectItem>
+                    <SelectItem value="recruiter">recruiter</SelectItem>
+                    <SelectItem value="candidate">candidate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+              <label className="field">
+                <span>{editingId ? "Password baru (opsional)" : "Password"}</span>
+                <Input
+                  type="password"
+                  placeholder={editingId ? "Biarkan kosong jika tidak diubah" : "Minimal 6 karakter"}
+                  value={form.password}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, password: event.target.value }))
+                  }
+                />
+              </label>
+            </div>
+            <div className="actions">
+              <Button disabled={formBusy} type="submit">
+                {formBusy ? "Saving..." : editingId ? "Update User" : "Create User"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={closeModal}>
+                Cancel
+              </Button>
+            </div>
+            {actionError && <ErrorState message={actionError} />}
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

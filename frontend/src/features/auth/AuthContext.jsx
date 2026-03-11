@@ -1,24 +1,33 @@
-import { createContext, useContext, useMemo, useState } from "react";
+"use client";
+
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { logout as logoutRequest } from "./authApi";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const isAuthenticated = Boolean(localStorage.getItem("accessToken"));
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = window.localStorage.getItem("user");
+    const token = window.localStorage.getItem("accessToken");
+    setUser(raw ? JSON.parse(raw) : null);
+    setIsAuthenticated(Boolean(token));
+  }, []);
 
   const value = useMemo(
     () => ({
       user,
       isAuthenticated,
       setSession: (payload) => {
-        localStorage.setItem("accessToken", payload.accessToken);
-        localStorage.setItem("user", JSON.stringify(payload.user));
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("accessToken", payload.accessToken);
+          window.localStorage.setItem("user", JSON.stringify(payload.user));
+        }
         setUser(payload.user);
+        setIsAuthenticated(true);
       },
       logout: async () => {
         try {
@@ -26,9 +35,12 @@ export function AuthProvider({ children }) {
         } catch (_error) {
           // Keep local logout behavior even if API logout fails.
         }
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("accessToken");
+          window.localStorage.removeItem("user");
+        }
         setUser(null);
+        setIsAuthenticated(false);
       }
     }),
     [user, isAuthenticated]
