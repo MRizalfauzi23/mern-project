@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "../components/AppLayout.jsx";
 import { ProtectedRoute } from "../components/ProtectedRoute.jsx";
 import { AdminDashboardPage } from "../pages/AdminDashboardPage.jsx";
+import { UsersPage } from "../pages/UsersPage.jsx";
 import { ApplicationDetailPage } from "../pages/ApplicationDetailPage.jsx";
 import { ApplicationPipelinePage } from "../pages/ApplicationPipelinePage.jsx";
 import { ApplicationsPage } from "../pages/ApplicationsPage.jsx";
@@ -35,6 +36,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/users"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <UsersPage />
             </ProtectedRoute>
           }
         />

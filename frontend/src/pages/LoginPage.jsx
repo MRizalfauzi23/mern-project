@@ -5,7 +5,7 @@ import { useAuth } from "../features/auth/AuthContext";
 import { login } from "../features/auth/authApi";
 
 export function LoginPage() {
-  const { isAuthenticated, setSession } = useAuth();
+  const { isAuthenticated, setSession, user } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const mutation = useMutation({
     mutationFn: login,
@@ -14,16 +14,19 @@ export function LoginPage() {
     }
   });
 
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) {
+    const redirectTo = user?.role === "admin" ? "/admin" : "/";
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
     <div className="auth-page">
       <section className="login-shell">
         <aside className="login-hero">
-          <p className="login-kicker">MERN Skill Portfolio</p>
-          <h1>Build, test, and present like production.</h1>
+          <p className="login-kicker">SISTEM REKRUTMEN</p>
+          <h1>Pantau Lowongan Kerja</h1>
           <p>
-            Sign in to manage jobs, validate auth flow, and demonstrate clean API + UI architecture.
+            Kelola proses rekrutmen dengan mudah, mulai dari posting lowongan hingga penjadwalan wawancara, semuanya dalam satu platform yang terintegrasi.
           </p>
         </aside>
         <form
@@ -34,8 +37,8 @@ export function LoginPage() {
           }}
         >
           <div>
-            <h2>Welcome back</h2>
-            <p className="muted">Use your recruiter or admin account to continue.</p>
+            <h2>Login</h2>
+           
           </div>
           <label className="field">
             <span>Email</span>

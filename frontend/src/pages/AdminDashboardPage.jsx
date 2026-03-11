@@ -187,12 +187,12 @@ export function AdminDashboardPage() {
   return (
     <section className="saas-dashboard admin-dashboard">
       <div className="jobs-toolbar admin-toolbar">
-        <div>
+        {/* <div>
           <p className="section-kicker">Dashboard</p>
           <h2>Admin Analytics</h2>
           <p className="muted">Ringkasan performa rekrutmen dan pipeline operasional.</p>
-        </div>
-        <div className="admin-hero-actions">
+        </div> */}
+        {/* <div className="admin-hero-actions">
           <div className="admin-search">
             <input placeholder="Search keywords" />
           </div>
@@ -204,7 +204,7 @@ export function AdminDashboardPage() {
           >
             {exportMutation.isPending ? "Menyiapkan CSV..." : "Export Report"}
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="kpi-grid kpi-grid-4">
@@ -388,14 +388,14 @@ export function AdminDashboardPage() {
             </div>
           </article>
 
-          <article className="panel-card">
+          {/* <article className="panel-card">
             <h3>Insight Operasional</h3>
             <ul className="plain-list">
               <li>Sinyal volume tertinggi: prioritaskan screening lebih cepat untuk role high-demand.</li>
               <li>Tren penutupan menunjukkan konversi funnel yang sehat dari terbuka ke ditutup.</li>
               <li>Pantau status hired dan rejected untuk mengoptimalkan quality funnel.</li>
             </ul>
-          </article>
+          </article> */}
         </div>
       </div>
     </section>

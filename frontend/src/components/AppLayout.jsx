@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
-import { FiBriefcase, FiFileText, FiTrendingUp, FiBarChart2 } from "react-icons/fi";
+import { FiBriefcase, FiFileText, FiTrendingUp, FiBarChart2, FiUsers } from "react-icons/fi";
 
 export function AppLayout() {
   const { user, logout } = useAuth();
@@ -13,8 +13,8 @@ export function AppLayout() {
     <div className={`app-shell ${isAdminPage ? "admin-shell" : ""}`}>
       <aside className="sidebar">
         <div className="brand-block">
-          <p className="brand-kicker">MERN Skill Test</p>
-          <h1>Dasbor</h1>
+          <p className="brand-kicker">Pantau Lowongan Kerja</p>
+          <h1>Admin Panel</h1>
         </div>
         <nav className="side-nav">
           {user?.role === "admin" && (
@@ -28,12 +28,6 @@ export function AppLayout() {
               Analitik Admin
             </NavLink>
           )}
-          <NavLink to="/" end className={() => (isRootPage ? "side-link active" : "side-link")}>
-            <span className="side-icon" aria-hidden="true">
-              <FiBriefcase />
-            </span>
-            <span className="side-label">Manajemen Lowongan</span>
-          </NavLink>
           <NavLink
             to="/applications"
             end
@@ -44,6 +38,12 @@ export function AppLayout() {
             </span>
             <span className="side-label">Manajemen Lamaran</span>
           </NavLink>
+          <NavLink to="/" end className={() => (isRootPage ? "side-link active" : "side-link")}>
+            <span className="side-icon" aria-hidden="true">
+              <FiBriefcase />
+            </span>
+            <span className="side-label">Manajemen Lowongan</span>
+          </NavLink>
           <NavLink
             to="/applications/pipeline"
             className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
@@ -53,18 +53,29 @@ export function AppLayout() {
             </span>
             <span className="side-label">Pipeline Lamaran</span>
           </NavLink>
+          {user?.role === "admin" && (
+            <NavLink
+              to="/admin/users"
+              className={({ isActive }) => (isActive ? "side-link active" : "side-link")}
+            >
+              <span className="side-icon" aria-hidden="true">
+                <FiUsers />
+              </span>
+              Manajemen Users
+            </NavLink>
+          )}
         </nav>
       </aside>
 
       <div className="app-main">
         <header className="topbar">
           <div className="topbar-title">
-            <h2>{isAdminPage ? "Selamat datang, Admin" : `Selamat datang, ${user?.role}`}</h2>
+            {/* <h2>{isAdminPage ? "Selamat datang, Admin" : `Selamat datang, ${user?.role}`}</h2>
             <p className="muted">
               {isAdminPage
                 ? "Kelola performa rekrutmen dan pantau insight operasional."
                 : "Kelola lowongan dan pantau proses rekrutmen."}
-            </p>
+            </p> */}
           </div>
           <div className="topbar-actions">
             <div
@@ -81,7 +92,13 @@ export function AppLayout() {
                 className="user-trigger"
                 onClick={() => setIsUserMenuOpen((prev) => !prev)}
               >
-                <span className="user-email">{user?.email}</span>
+                <span className="user-avatar" aria-hidden="true">
+                  {user?.name?.trim()?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+                </span>
+                <span className="user-meta">
+                  <span className="user-name">{user?.name || "User"}</span>
+                  <span className="user-email">{user?.email}</span>
+                </span>
                 <span className="user-caret" aria-hidden="true">
                   v
                 </span>
