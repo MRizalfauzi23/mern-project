@@ -4,10 +4,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { FiEye, FiEyeOff, FiMail } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../features/auth/AuthContext";
-import { login } from "../features/auth/authApi";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { useAuth } from "../../features/auth/AuthContext";
+import { login } from "../../features/auth/authApi";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 export function LoginPage() {
   const { isAuthenticated, setSession, user } = useAuth();
@@ -141,3 +141,4 @@ export function LoginPage() {
     </div>
   );
 }
+

@@ -2,18 +2,18 @@
 
 import { useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ErrorState } from "../components/ErrorState";
-import { Loader } from "../components/Loader";
-import { useToast } from "../components/ToastProvider";
-import { exportApplicationsExcel, fetchApplications } from "../features/applications/applicationsApi";
-import { fetchJobs } from "../features/jobs/jobsApi";
-import { Button } from "../components/ui/button";
+import { ErrorState } from "../../components/ErrorState";
+import { Loader } from "../../components/Loader";
+import { useToast } from "../../components/ToastProvider";
+import { exportApplicationsExcel, fetchApplications } from "../../features/applications/applicationsApi";
+import { fetchJobs } from "../../features/jobs/jobsApi";
+import { Button } from "../../components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle
-} from "../components/ui/card";
+} from "../../components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "../components/ui/table";
+} from "../../components/ui/table";
 
 export function AdminDashboardPage() {
   const { showToast } = useToast();
@@ -416,3 +416,4 @@ export function AdminDashboardPage() {
     </section>
   );
 }
+

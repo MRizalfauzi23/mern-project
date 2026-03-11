@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useToast } from "../components/ToastProvider";
-import { fetchJobs } from "../features/jobs/jobsApi";
-import { submitPublicApplication } from "../features/applications/applicationsApi";
-import { Loader } from "../components/Loader";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
+import { useToast } from "../../components/ToastProvider";
+import { fetchJobs } from "../../features/jobs/jobsApi";
+import { submitPublicApplication } from "../../features/applications/applicationsApi";
+import { Loader } from "../../components/Loader";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
 
 const INITIAL_FORM = {
   fullName: "",
@@ -190,3 +190,4 @@ export function ApplicantFormPage() {
     </section>
   );
 }
+

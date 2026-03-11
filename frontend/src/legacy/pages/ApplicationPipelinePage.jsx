@@ -4,18 +4,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import Link from "next/link";
-import { ErrorState } from "../components/ErrorState";
-import { Loader } from "../components/Loader";
-import { fetchApplications, updateApplicationStatus } from "../features/applications/applicationsApi";
-import { useToast } from "../components/ToastProvider";
-import { Button } from "../components/ui/button";
+import { ErrorState } from "../../components/ErrorState";
+import { Loader } from "../../components/Loader";
+import { fetchApplications, updateApplicationStatus } from "../../features/applications/applicationsApi";
+import { useToast } from "../../components/ToastProvider";
+import { Button } from "../../components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "../components/ui/select";
+} from "../../components/ui/select";
 import {
   Table,
   TableBody,
@@ -23,13 +23,13 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "../components/ui/table";
+} from "../../components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from "../components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import { FiMoreVertical } from "react-icons/fi";
 
 const STATUSES = ["screening", "interview", "offer", "hired", "rejected"];
@@ -178,3 +178,4 @@ export function ApplicationPipelinePage() {
     </section>
   );
 }
+

@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ErrorState } from "../components/ErrorState";
-import { Loader } from "../components/Loader";
-import { fetchJobById } from "../features/jobs/jobsApi";
-import { buttonVariants } from "../components/ui/button";
-import { cn } from "../lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { ErrorState } from "../../components/ErrorState";
+import { Loader } from "../../components/Loader";
+import { fetchJobById } from "../../features/jobs/jobsApi";
+import { buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 export function JobDetailPage() {
   const params = useParams();
@@ -102,3 +102,4 @@ export function JobDetailPage() {
     </section>
   );
 }
+

@@ -3,33 +3,33 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import Link from "next/link";
-import { ErrorState } from "../components/ErrorState";
-import { Loader } from "../components/Loader";
-import { Pagination } from "../components/Pagination";
-import { SearchBar } from "../components/SearchBar";
-import { useToast } from "../components/ToastProvider";
-import { useAuth } from "../features/auth/AuthContext";
-import { createJob, deleteJob, fetchJobs, updateJob } from "../features/jobs/jobsApi";
-import { useDebounce } from "../lib/useDebounce";
-import { Button } from "../components/ui/button";
+import { ErrorState } from "../../components/ErrorState";
+import { Loader } from "../../components/Loader";
+import { Pagination } from "../../components/Pagination";
+import { SearchBar } from "../../components/SearchBar";
+import { useToast } from "../../components/ToastProvider";
+import { useAuth } from "../../features/auth/AuthContext";
+import { createJob, deleteJob, fetchJobs, updateJob } from "../../features/jobs/jobsApi";
+import { useDebounce } from "../../lib/useDebounce";
+import { Button } from "../../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from "../components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import { FiMoreVertical } from "react-icons/fi";
-import { Card, CardContent } from "../components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
+import { Card, CardContent } from "../../components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "../components/ui/select";
+} from "../../components/ui/select";
 import {
   Table,
   TableBody,
@@ -37,7 +37,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "../components/ui/table";
+} from "../../components/ui/table";
 
 const LIMIT = 8;
 const DEFAULT_SCREENING_CONFIG = {
@@ -532,3 +532,4 @@ export function JobsPage() {
     </section>
   );
 }
+

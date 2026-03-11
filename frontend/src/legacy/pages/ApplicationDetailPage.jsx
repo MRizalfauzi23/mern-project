@@ -4,25 +4,25 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ErrorState } from "../components/ErrorState";
-import { Loader } from "../components/Loader";
+import { ErrorState } from "../../components/ErrorState";
+import { Loader } from "../../components/Loader";
 import {
   addApplicationNote,
   fetchApplicationById,
   rerunApplicationScreening,
   updateApplicationStatus
-} from "../features/applications/applicationsApi";
-import { useToast } from "../components/ToastProvider";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Textarea } from "../components/ui/textarea";
+} from "../../features/applications/applicationsApi";
+import { useToast } from "../../components/ToastProvider";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Textarea } from "../../components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "../components/ui/select";
+} from "../../components/ui/select";
 import {
   Table,
   TableBody,
@@ -30,7 +30,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "../components/ui/table";
+} from "../../components/ui/table";
 
 export function ApplicationDetailPage() {
   const params = useParams();
@@ -317,3 +317,4 @@ export function ApplicationDetailPage() {
     </section>
   );
 }
+

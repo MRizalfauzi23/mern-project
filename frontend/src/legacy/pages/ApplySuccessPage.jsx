@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { buttonVariants } from "../components/ui/button";
-import { cn } from "../lib/utils";
-import { Card, CardContent } from "../components/ui/card";
+import { buttonVariants } from "../../components/ui/button";
+import { cn } from "../../lib/utils";
+import { Card, CardContent } from "../../components/ui/card";
 
 export function ApplySuccessPage() {
   return (
@@ -28,3 +28,4 @@ export function ApplySuccessPage() {
     </section>
   );
 }
+
