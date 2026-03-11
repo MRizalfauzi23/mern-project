@@ -1,12 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "../features/auth/AuthContext";
 import { login } from "../features/auth/authApi";
 
 export function LoginPage() {
   const { isAuthenticated, setSession, user } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
@@ -52,13 +54,23 @@ export function LoginPage() {
           </label>
           <label className="field">
             <span>Password</span>
-            <input
-              className="input"
-              placeholder="Enter your password"
-              type="password"
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-            />
+            <div className="password-field">
+              <input
+                className="input"
+                placeholder="Enter your password"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
           </label>
           <button className="login-btn" disabled={mutation.isPending} type="submit">
             {mutation.isPending ? "Signing in..." : "Sign in"}

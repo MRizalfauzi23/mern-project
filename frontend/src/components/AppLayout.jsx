@@ -9,8 +9,21 @@ export function AppLayout() {
   const isAdminPage = location.pathname.startsWith("/admin");
   const isRootPage = location.pathname === "/";
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <div className={`app-shell ${isAdminPage ? "admin-shell" : ""}`}>
+    <div
+      className={`app-shell ${isAdminPage ? "admin-shell" : ""} ${
+        isSidebarOpen ? "sidebar-open" : ""
+      }`}
+    >
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className="sidebar-overlay"
+          aria-label="Tutup menu"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
       <aside className="sidebar">
         <div className="brand-block">
           <p className="brand-kicker">Pantau Lowongan Kerja</p>
@@ -78,6 +91,16 @@ export function AppLayout() {
             </p> */}
           </div>
           <div className="topbar-actions">
+            <button
+              type="button"
+              className="sidebar-toggle"
+              aria-label="Toggle menu"
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
             <div
               className={`user-menu ${isUserMenuOpen ? "open" : ""}`}
               tabIndex={0}
@@ -123,4 +146,3 @@ export function AppLayout() {
     </div>
   );
 }
-
