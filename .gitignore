@@ -4,6 +4,7 @@ dist/
 build/
 .env
 .env.*
+!**/.env.example
 uploads/
 .DS_Store
 *.log
